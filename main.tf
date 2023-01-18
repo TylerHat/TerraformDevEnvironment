@@ -69,8 +69,8 @@ resource "aws_security_group" "dev_sg" {
 }
 
 resource "aws_key_pair" "dev_auth" {
-  key_name   = "devkey"
-  public_key = file("~/.ssh/DevEnvKey.pub") #This is where the key pair is located
+  key_name   = "Dev_Env_Key"
+  public_key = file("C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key.pub") #This is where the key pair is located
 }
 
 resource "aws_instance" "dev_node" {
@@ -87,5 +87,14 @@ resource "aws_instance" "dev_node" {
 
   tags = {
     Name = "Dev-Node"
+  }
+
+  provisioner "local-exec" {
+    command = templatefile("windows-ssh-config.tpl", {
+      hostname = self.public_ip,
+      user = "ubuntu",
+      identifyfile = "C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key"
+    })
+    interpreter = ["Powershell", "-Command"]
   }
 }
