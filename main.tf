@@ -56,7 +56,7 @@ resource "aws_security_group" "dev_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["192.168.0.23/32"] #Update this ip to what your current IP is set at
+    cidr_blocks = ["0.0.0.0/0"] #Update this ip to what your current IP is set at
   }
 
   egress {
@@ -70,17 +70,19 @@ resource "aws_security_group" "dev_sg" {
 
 resource "aws_key_pair" "dev_auth" {
   key_name   = "Dev_Env_Key"
-  public_key = file("C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key.pub") #This is where the key pair is located
+  #public_key = file("C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key.pub") #This is where the key pair is located
+  public_key = file("C:/Users/Tyler/Documents/ssh/Dev_Env_Key.pub")
+  
 }
 
 resource "aws_instance" "dev_node" {
-  instance_type = "t2.micro"
-  ami           = data.aws_ami.server_ami.id
+  instance_type          = "t2.micro"
+  ami                    = data.aws_ami.server_ami.id
   key_name               = aws_key_pair.dev_auth.id
   vpc_security_group_ids = [aws_security_group.dev_sg.id]
   subnet_id              = aws_subnet.dev_public_subnet.id
-  user_data = file("userdata.tpl")
-  
+  user_data              = file("userdata.tpl")
+
   root_block_device {
     volume_size = 10 #dont increase this because it may no longer be in the free tier
   }
@@ -91,10 +93,13 @@ resource "aws_instance" "dev_node" {
 
   provisioner "local-exec" {
     command = templatefile("windows-ssh-config.tpl", {
-      hostname = self.public_ip,
-      user = "ubuntu",
-      identifyfile = "C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key"
+      hostname     = self.public_ip,
+      user         = "ubuntu",
+      #identityfile = "C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key"
+      identityfile = "C:/Users/Tyler/Documents/ssh/Dev_Env_Key"
     })
     interpreter = ["Powershell", "-Command"]
   }
+
+
 }

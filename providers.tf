@@ -8,8 +8,8 @@ terraform {
 
 
 provider "aws" {
-  region                   = "us-east-2"
-  shared_config_files      = ["C:/Users/Tyler Hatfield/.aws/config"]
-  shared_credentials_files = ["C:/Users/Tyler Hatfield/.aws/credentials"]
+  region = "us-east-2"
+  #shared_config_files      = ["C:/Users/Tyler Hatfield/.aws/config"]
+  shared_credentials_files = ["~/.aws/credentials"]
   profile                  = "vscode"
 }
