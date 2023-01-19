@@ -12,7 +12,7 @@ resource "aws_subnet" "dev_public_subnet" {
   vpc_id                  = aws_vpc.dev_vpc.id
   cidr_block              = "10.123.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-2a"
+  availability_zone       = "${var.region}a"
 
   tags = {
     Name = "Dev-public"
@@ -71,7 +71,7 @@ resource "aws_security_group" "dev_sg" {
 resource "aws_key_pair" "dev_auth" {
   key_name   = "Dev_Env_Key"
   #public_key = file("C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key.pub") #This is where the key pair is located
-  public_key = file("C:/Users/Tyler/Documents/ssh/Dev_Env_Key.pub")
+  public_key = file("${var.ssh_tyler_path}/Dev_Env_Key.pub")
   
 }
 
@@ -92,13 +92,13 @@ resource "aws_instance" "dev_node" {
   }
 
   provisioner "local-exec" {
-    command = templatefile("windows-ssh-config.tpl", {
+    command = templatefile("${var.host_os_ssh}-ssh-config.tpl", {
       hostname     = self.public_ip,
-      user         = "ubuntu",
+      user         = "${var.username}",
       #identityfile = "C:/Users/Tyler Hatfield/.ssh/Dev_Env_Key"
-      identityfile = "C:/Users/Tyler/Documents/ssh/Dev_Env_Key"
+      identityfile = "${var.ssh_tyler_path}/Dev_Env_Key"
     })
-    interpreter = ["Powershell", "-Command"]
+    interpreter = var.host_os_ssh == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
   }
 
 
